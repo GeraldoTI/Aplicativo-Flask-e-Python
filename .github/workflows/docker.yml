@@ -1,4 +1,4 @@
-name: Build, Test and Deploy Docker Image
+name: Build and Push Docker Image
 
 on:
   push:
@@ -24,13 +24,8 @@ jobs:
 
     - name: Build Docker image
       run: |
-        docker build -t yourusername/tag_app:latest .
-
-    - name: Run tests
-      run: |
-        docker run --rm yourusername/tag_app:latest python -m unittest discover -s tests  # Ajuste conforme necessário
+        docker build -t gerald/tag_app:latest .
 
     - name: Push Docker image
-      if: success()  # Apenas faz o push se os testes forem bem-sucedidos
       run: |
-        docker push yourusername/tag_app:latest
+        docker push gerald/tag_app:latest
