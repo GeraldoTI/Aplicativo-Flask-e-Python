@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: CI/CD Pipeline
 
 on:
   push:
@@ -11,20 +11,35 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
-      
-      - name: Log in to Docker Hub
-        uses: docker/login-action@v2
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
+    - name: Checkout code
+      uses: actions/checkout@v2
 
-      - name: Build the Docker image
-        run: docker build . --file Dockerfile --tag my-image-name:$(date +%s)
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
 
-      - name: Push the Docker image
-        run: docker push my-image-name:$(date +%s)
+    - name: Build Docker image
+      run: docker build . --file Dockerfile --tag my-app:latest
 
-      - name: Run tests
-        run: |
-          docker run my-image-name:$(date +%s) some-test-command
+    - name: Run tests
+      run: |
+        docker run --rm my-app:latest pytest tests/  # Executa os testes
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build  # O job de deploy só será executado se o job de build for bem-sucedido
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Login to Docker Hub
+      env:
+        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
+        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
+
+    - name: Push Docker image to Docker Hub
+      run: docker push my-app:latest
+
+    - name: Deploy to Production (simulado)
+      run: echo "Deploying to production..."  # Aqui você pode adicionar seu comando de deploy

@@ -1,18 +1,18 @@
-# Use a imagem oficial do Python como base
+# Dockerfile
+
 FROM python:3.9-slim
 
-# Define o diretório de trabalho dentro do contêiner
+# Set working directory
 WORKDIR /app
 
-# Copia os arquivos de requisitos e da aplicação para o contêiner
-COPY requirements.txt requirements.txt
-COPY . .
+# Copy requirements file
+COPY requirements.txt .
 
-# Instala as dependências
+# Install dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Expõe a porta que o Flask usará
-EXPOSE 5000
+# Copy application code
+COPY . .
 
-# Define o comando para rodar a aplicação
+# Command to run your application
 CMD ["python", "app.py"]
