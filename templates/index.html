@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tags Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 60px;
+            background-color: #f8f9fa;
+        }
+        .container {
+            max-width: 800px;
+        }
+        h1 {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Tags Dashboard</h1>
+        <form id="tagForm">
+            <div class="mb-3">
+                <input type="text" id="tagInput" class="form-control" placeholder="Add a new tag" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Tag</button>
+        </form>
+        <h2 class="mt-4">Tag List</h2>
+        <ul id="tagList" class="list-group"></ul>
+        <button id="exportBtn" class="btn btn-success mt-4">Export Tags to CSV</button>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const tagForm = document.getElementById('tagForm');
+            const tagInput = document.getElementById('tagInput');
+            const tagList = document.getElementById('tagList');
+            const exportBtn = document.getElementById('exportBtn');
+
+            // Função para atualizar a lista de tags
+            const updateTagList = () => {
+                fetch('/get_tags')
+                    .then(response => response.json())
+                    .then(data => {
+                        tagList.innerHTML = '';
+                        data.forEach(tag => {
+                            const li = document.createElement('li');
+                            li.className = 'list-group-item';
+                            li.textContent = tag;
+                            tagList.appendChild(li);
+                        });
+                    });
+            };
+
+            // Atualiza a lista de tags ao carregar a página
+            updateTagList();
+
+            // Lidar com o envio do formulário
+            tagForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const tag = tagInput.value;
+
+                fetch('/add_tag', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: `tag=${encodeURIComponent(tag)}`,
+                })
+                .then(response => response.json())
+                .then(data => {
+                    tagInput.value = ''; // Limpa o campo de entrada
+                    updateTagList(); // Atualiza a lista de tags
+                });
+            });
+
+            // Lidar com o clique no botão de exportação
+            exportBtn.addEventListener('click', () => {
+                window.location.href = '/export_csv';
+            });
+        });
+    </script>
+</body>
+</html>
