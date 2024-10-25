@@ -1,4 +1,4 @@
-name: CI/CD Pipeline
+name: Docker Image CI
 
 on:
   push:
@@ -11,39 +11,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-
-    - name: Build Docker image
-      run: docker build . --file Dockerfile --tag my-app:latest
-
-    - name: Run tests
-      run: |
-<<<<<<< HEAD
-        docker run --rm my-app:latest pytest tests/  # Executa os testes
-=======
-        docker run my-app:latest pytest  # ou seu comando de teste
->>>>>>> 025b829b79ba319dae373ad03389ec4470e1cdcd
-
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build  # O job de deploy só será executado se o job de build for bem-sucedido
-
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v2
-
-    - name: Login to Docker Hub
-      env:
-        DOCKER_USERNAME: ${{ secrets.DOCKER_USERNAME }}
-        DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      run: echo "${DOCKER_PASSWORD}" | docker login -u "${DOCKER_USERNAME}" --password-stdin
-
-    - name: Push Docker image to Docker Hub
-      run: docker push my-app:latest
-
-    - name: Deploy to Production (simulado)
-      run: echo "Deploying to production..."  # Aqui você pode adicionar seu comando de deploy
+      - uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Log in to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_HUB_USERNAME }}
+          password: ${{ secrets.DOCKER_HUB_TOKEN }}
+      
+      - name: Build the Docker image
+        run: |
+          docker build . --file Dockerfile --tag geraldoti2022/app-tags:latest
+          docker tag geraldoti2022/app-tags:latest geraldoti2022/app-tags:$(date +%s)  # Optional: Add timestamp tag
+      
+      - name: Push the Docker image
+        run: |
+          docker push geraldoti2022/app-tags:latest
+          docker push geraldoti2022/app-tags:$(date +%s)  # Optional: Push the timestamp tag
