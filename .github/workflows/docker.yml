@@ -22,7 +22,11 @@ jobs:
 
     - name: Run tests
       run: |
+<<<<<<< HEAD
         docker run --rm my-app:latest pytest tests/  # Executa os testes
+=======
+        docker run my-app:latest pytest  # ou seu comando de teste
+>>>>>>> 025b829b79ba319dae373ad03389ec4470e1cdcd
 
   deploy:
     runs-on: ubuntu-latest
